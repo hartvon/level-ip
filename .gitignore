@@ -2,7 +2,14 @@
 build/*.o
 a.out
 *.o
+*.so
 *cscope*
 lvl-ip
 tests/venv
 vgcore*
+
+.vscode/
+.cache/
+compile_commands.json
+apps/curl/curl
+apps/curl-poll/curl-poll
