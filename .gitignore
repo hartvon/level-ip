@@ -11,5 +11,4 @@ vgcore*
 .vscode/
 .cache/
 compile_commands.json
-apps/curl/curl
-apps/curl-poll/curl-poll
+apps/bin/

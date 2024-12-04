@@ -3,7 +3,8 @@ CPPFLAGS = -I include -Wall -pthread
 src = $(wildcard src/*.c)
 obj = $(patsubst src/%.c, build/%.o, $(src))
 headers = $(wildcard include/*.h)
-apps = apps/curl/curl
+
+.PHONY: apps clean
 
 lvl-ip: $(obj)
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(obj) -o lvl-ip
@@ -17,7 +18,8 @@ build/%.o: src/%.c ${headers}
 debug: CFLAGS+= -DDEBUG_SOCKET -DDEBUG_TCP -g -fsanitize=thread
 debug: lvl-ip
 
-apps: $(apps)
+apps:
+	@mkdir -p apps/bin
 	$(MAKE) -C tools
 	$(MAKE) -C apps/curl
 	$(MAKE) -C apps/curl-poll
