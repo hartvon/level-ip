@@ -21,6 +21,7 @@ apps: $(apps)
 	$(MAKE) -C tools
 	$(MAKE) -C apps/curl
 	$(MAKE) -C apps/curl-poll
+	$(MAKE) -C apps/nc
 
 all: lvl-ip apps
 
