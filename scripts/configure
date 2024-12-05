@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+
+set -x
+
+if [ "$EUID" -ne 0 ]; then
+  echo "The script must be run as root (use 'sudo')" >&2
+  exit 1
+fi
+
+if [ "$#" -ne 1 ]; then
+  echo "Usage: $0 <iface>" >&2
+  exit 1
+fi
+
+
+if [ ! -e /dev/net/tap ]; then
+  mknod /dev/net/tap c 10 200
+  chmod 0666 /dev/net/tap
+fi
+
+nft add table ip filter
+nft add table ip nat
+
+nft add chain ip filter INPUT '{ type filter hook input priority 0; }'
+nft add chain ip filter FORWARD '{ type filter hook forward priority 0; }'
+nft add chain ip nat POSTROUTING '{ type nat hook postrouting priority 100; }'
+
+if ! nft list ruleset | grep -q 'saddr 10.0.0.0/24'; then
+  nft add rule ip filter INPUT ip saddr 10.0.0.0/24 accept
+fi
+
+if ! nft list ruleset | grep -qE 'oifname [^ ]+ masquerade'; then
+  nft add rule ip nat POSTROUTING oifname "$1" masquerade
+fi
+
+if ! nft list ruleset | grep -q 'oifname "tap0" accept'; then
+  nft add rule ip filter FORWARD iifname "$1" oifname "tap0" accept
+fi
+
+if ! nft list ruleset | grep -q 'iifname "tap0"'; then
+  nft add rule ip filter FORWARD iifname "tap0" oifname "$1" accept
+fi
