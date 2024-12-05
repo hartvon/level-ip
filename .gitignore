@@ -12,3 +12,4 @@ vgcore*
 .cache/
 compile_commands.json
 apps/bin/
+exp/
