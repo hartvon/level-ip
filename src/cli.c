@@ -37,7 +37,7 @@ static int parse_opts(int *argc, char*** argv)
     }
 
     *argc -= optind;
-    *argv += optind; 
+    *argv += optind;
 
     return optind;
 }

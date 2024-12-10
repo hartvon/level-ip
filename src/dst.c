@@ -16,9 +16,9 @@ int dst_neigh_output(struct sk_buff *skb)
     if (rt->flags & RT_GATEWAY) {
         daddr = rt->gateway;
     }
-    
+
     dmac = arp_get_hwaddr(daddr);
-    
+
     if (dmac) {
         return netdev_transmit(skb, dmac, ETH_P_IP);
     } else {

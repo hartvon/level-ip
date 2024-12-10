@@ -53,7 +53,7 @@ struct sock_ops {
 };
 
 struct net_family {
-    int (*create) (struct socket *sock, int protocol);    
+    int (*create) (struct socket *sock, int protocol);
 };
 
 struct socket {

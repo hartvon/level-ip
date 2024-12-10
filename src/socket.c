@@ -35,7 +35,7 @@ static struct socket *alloc_socket(pid_t pid)
     sock->flags = O_RDWR;
     wait_init(&sock->sleep);
     pthread_rwlock_init(&sock->lock, NULL);
-    
+
     return sock;
 }
 
@@ -82,7 +82,7 @@ int socket_free(struct socket *sock)
 
     wait_free(&sock->sleep);
     socket_release(sock);
-    
+
     return 0;
 }
 
@@ -130,7 +130,7 @@ static struct socket *get_socket(pid_t pid, uint32_t fd)
         sock = list_entry(item, struct socket, list);
         if (sock->pid == pid && sock->fd == fd) goto out;
     }
-    
+
     sock = NULL;
 
 out:
@@ -145,7 +145,7 @@ struct socket *socket_lookup(uint16_t remoteport, uint16_t localport)
     struct sock *sk = NULL;
 
     pthread_rwlock_rdlock(&slock);
-    
+
     list_for_each(item, &sockets) {
         sock = list_entry(item, struct socket, list);
 
@@ -173,7 +173,7 @@ struct socket *socket_find(struct socket *find)
         sock = list_entry(item, struct socket, list);
         if (sock == find) goto out;
     }
-    
+
     sock = NULL;
 
 out:
@@ -223,14 +223,14 @@ int _socket(pid_t pid, int domain, int type, int protocol)
         print_err("Domain not supported: %d\n", domain);
         goto abort_socket;
     }
-    
+
     if (family->create(sock, protocol) != 0) {
         print_err("Creating domain failed\n");
         goto abort_socket;
     }
 
     pthread_rwlock_wrlock(&slock);
-    
+
     list_add_tail(&sock->list, &sockets);
     sock_amount++;
 
@@ -269,7 +269,7 @@ int _connect(pid_t pid, int sockfd, const struct sockaddr *addr, socklen_t addrl
     default:
         socket_release(sock);
     }
-    
+
     return rc;
 }
 
@@ -420,7 +420,7 @@ int _getsockopt(pid_t pid, int fd, int level, int optname, void *optval, socklen
             rc =  -ENOPROTOOPT;
             break;
         }
-        
+
         break;
     default:
         print_err("Getsockopt: Unsupported level %d\n", level);

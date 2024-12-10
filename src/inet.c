@@ -57,9 +57,9 @@ int inet_create(struct socket *sock, int protocol)
 
     sk = sk_alloc(skt->net_ops, protocol);
     sk->protocol = protocol;
-    
+
     sock_init_data(sock, sk);
-    
+
     return 0;
 }
 
@@ -79,7 +79,7 @@ static int inet_stream_connect(struct socket *sock, const struct sockaddr *addr,
 {
     struct sock *sk = sock->sk;
     int rc = 0;
-    
+
     if (addr_len < sizeof(addr->sa_family)) {
         return -EINVAL;
     }
@@ -121,7 +121,7 @@ static int inet_stream_connect(struct socket *sock, const struct sockaddr *addr,
         }
         pthread_mutex_unlock(&sock->sleep.lock);
         socket_wr_acquire(sock);
-        
+
         switch (sk->err) {
         case -ETIMEDOUT:
         case -ECONNREFUSED:
@@ -135,7 +135,7 @@ static int inet_stream_connect(struct socket *sock, const struct sockaddr *addr,
         sock->state = SS_CONNECTED;
         break;
     }
-    
+
 out:
     return sk->err;
 sock_error:
@@ -161,7 +161,7 @@ struct sock *inet_lookup(struct sk_buff *skb, uint16_t sport, uint16_t dport)
 {
     struct socket *sock = socket_lookup(sport, dport);
     if (sock == NULL) return NULL;
-    
+
     return sock->sk;
 }
 
@@ -181,14 +181,14 @@ int inet_free(struct socket *sock)
     struct sock *sk = sock->sk;
     sock_free(sk);
     free(sock->sk);
-    
+
     return 0;
 }
 
 int inet_abort(struct socket *sock)
 {
     struct sock *sk = sock->sk;
-    
+
     if (sk) {
         sk->ops->abort(sk);
     }
@@ -213,7 +213,7 @@ int inet_getpeername(struct socket *sock, struct sockaddr *restrict address,
 
     inet_dbg(sock, "geetpeername sin_family %d sin_port %d sin_addr %d addrlen %d",
              res->sin_family, ntohs(res->sin_port), ntohl(res->sin_addr.s_addr), *address_len);
-    
+
     return 0;
 }
 int inet_getsockname(struct socket *sock, struct sockaddr *restrict address,
@@ -224,7 +224,7 @@ int inet_getsockname(struct socket *sock, struct sockaddr *restrict address,
     if (sk == NULL) {
         return -1;
     }
-    
+
     struct sockaddr_in *res = (struct sockaddr_in *) address;
     res->sin_family = AF_INET;
     res->sin_port = htons(sk->sport);
@@ -233,6 +233,6 @@ int inet_getsockname(struct socket *sock, struct sockaddr *restrict address,
 
     inet_dbg(sock, "getsockname sin_family %d sin_port %d sin_addr %d addrlen %d",
              res->sin_family, ntohs(res->sin_port), ntohl(res->sin_addr.s_addr), *address_len);
-    
+
     return 0;
 }

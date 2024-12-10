@@ -46,7 +46,7 @@ extern const char *tcp_dbg_states[];
                     hdr->syn, hdr->ack, hdr->psh, hdr->fin, hdr->rst, hdr->seq - tcp_sk(sk)->tcb.irs, \
                     hdr->seq + skb->dlen - tcp_sk(sk)->tcb.irs,         \
                     hdr->ack_seq - tcp_sk(sk)->tcb.iss, hdr->win, tcp_sk(sk)->rto, tcp_sk(sk)->backoff); \
-    } while (0) 
+    } while (0)
 
 #define tcp_out_dbg(hdr, sk, skb)                                       \
     do {                                                                \
@@ -217,7 +217,7 @@ struct tcp_sock {
     struct tcp_sack_block sacks[4];
 
     uint8_t tsopt;
-    
+
     struct sk_buff_head ofo_queue; /* Out-of-order queue */
 };
 

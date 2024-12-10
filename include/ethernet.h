@@ -29,7 +29,7 @@ struct netdev;
 
 uint8_t *skb_head(struct sk_buff *skb);
 
-struct eth_hdr 
+struct eth_hdr
 {
     uint8_t  dmac[6];
     uint8_t  smac[6];

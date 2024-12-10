@@ -23,7 +23,7 @@ uint32_t sum_every_16bits(void *addr, int count)
 {
     register uint32_t sum = 0;
     uint16_t * ptr = addr;
-    
+
     while( count > 1 )  {
         /*  This is the inner loop */
         sum += * ptr++;
@@ -46,7 +46,7 @@ uint16_t checksum(void *addr, int count, int start_sum)
     uint32_t sum = start_sum;
 
     sum += sum_every_16bits(addr, count);
-    
+
     /*  Fold 32-bit sum to 16 bits */
     while (sum>>16)
         sum = (sum & 0xffff) + (sum >> 16);
@@ -76,7 +76,7 @@ int get_address(char *host, char *port, struct sockaddr *addr)
         freeaddrinfo(result);
         return 0;
     }
-    
+
     return 1;
 }
 

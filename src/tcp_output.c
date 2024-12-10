@@ -58,7 +58,7 @@ static int tcp_syn_options(struct sock *sk, struct tcp_options *opts)
     } else {
         opts->sack = 0;
     }
-    
+
     return optlen;
 }
 
@@ -124,7 +124,7 @@ static int tcp_transmit_skb(struct sock *sk, struct sk_buff *skb, uint32_t seq)
     thdr->csum = htons(thdr->csum);
     thdr->urp = htons(thdr->urp);
     thdr->csum = tcp_v4_checksum(skb, htonl(sk->saddr), htonl(sk->daddr));
-    
+
     return ip_output(sk, skb);
 }
 
@@ -134,7 +134,7 @@ static int tcp_queue_transmit_skb(struct sock *sk, struct sk_buff *skb)
     struct tcb *tcb = &tsk->tcb;
     struct tcphdr * th = tcp_hdr(skb);
     int rc = 0;
-    
+
     if (skb_queue_empty(&sk->write_queue)) {
         tcp_rearm_rto_timer(tsk);
     }
@@ -220,7 +220,7 @@ int tcp_send_next(struct sock *sk, int amount)
         th = tcp_hdr(next);
         if (th->fin) tcb->snd_nxt++;
     }
-    
+
     return 0;
 }
 
@@ -247,7 +247,7 @@ static int tcp_options_len(struct sock *sk)
 int tcp_send_ack(struct sock *sk)
 {
     if (sk->state == TCP_CLOSE) return 0;
-    
+
     struct sk_buff *skb;
     struct tcphdr *th;
     struct tcb *tcb = &tcp_sk(sk)->tcb;
@@ -255,7 +255,7 @@ int tcp_send_ack(struct sock *sk)
     int optlen = tcp_options_len(sk);
 
     skb = tcp_alloc_skb(optlen, 0);
-    
+
     th = tcp_hdr(skb);
     th->ack = 1;
     th->hl = TCP_DOFFSET + (optlen / 4);
@@ -298,7 +298,7 @@ int tcp_send_fin(struct sock *sk)
     int rc = 0;
 
     skb = tcp_alloc_skb(0, 0);
-    
+
     th = tcp_hdr(skb);
     th->fin = 1;
     th->ack = 1;
@@ -342,7 +342,7 @@ static void *tcp_connect_rto(void *arg)
             if (skb) {
                 skb_reset_header(skb);
                 tcp_transmit_skb(sk, skb, tcb->snd_una);
-            
+
                 tsk->backoff++;
                 tcp_rearm_rto_timer(tsk);
             }
@@ -377,7 +377,7 @@ static void *tcp_retransmission_timeout(void *arg)
 
     struct tcphdr *th = tcp_hdr(skb);
     skb_reset_header(skb);
-    
+
     tcp_transmit_skb(sk, skb, tcb->snd_una);
     /* RFC 6298: 2.5 Maximum value MAY be placed on RTO, provided it is at least
        60 seconds */
@@ -423,7 +423,7 @@ int tcp_connect(struct sock *sk)
     struct tcp_sock *tsk = tcp_sk(sk);
     struct tcb *tcb = &tsk->tcb;
     int rc = 0;
-    
+
     tsk->tcp_header_len = sizeof(struct tcphdr);
     tcb->iss = generate_iss();
     tcb->snd_wnd = 0;
@@ -438,7 +438,7 @@ int tcp_connect(struct sock *sk)
 
     rc = tcp_send_syn(sk);
     tcb->snd_nxt++;
-    
+
     return rc;
 }
 
@@ -457,7 +457,7 @@ int tcp_send(struct tcp_sock *tsk, const void *buf, int len)
         skb = tcp_alloc_skb(0, dlen);
         skb_push(skb, dlen);
         memcpy(skb->data, buf, dlen);
-        
+
         buf += dlen;
 
         th = tcp_hdr(skb);
@@ -473,7 +473,7 @@ int tcp_send(struct tcp_sock *tsk, const void *buf, int len)
     }
 
     tcp_rearm_user_timeout(&tsk->sk);
-    
+
     return len;
 }
 
@@ -516,7 +516,7 @@ int tcp_queue_fin(struct sock *sk)
     th->ack = 1;
 
     tcpsock_dbg("Queueing fin", sk);
-    
+
     rc = tcp_queue_transmit_skb(sk, skb);
 
     return rc;

@@ -30,7 +30,7 @@ struct net_ops tcp_ops = {
 
 void tcp_init()
 {
-    
+
 }
 
 static void tcp_init_segment(struct tcphdr *th, struct iphdr *ih, struct sk_buff *skb)
@@ -64,7 +64,7 @@ void tcp_in(struct sk_buff *skb)
     th = (struct tcphdr*) iph->data;
 
     tcp_init_segment(th, iph, skb);
-    
+
     sk = inet_lookup(skb, th->sport, th->dport);
 
     if (sk == NULL) {
@@ -93,7 +93,7 @@ int tcp_udp_checksum(uint32_t saddr, uint32_t daddr, uint8_t proto,
     sum += daddr;
     sum += htons(proto);
     sum += htons(len);
-    
+
     return checksum(data, len, sum);
 }
 
@@ -109,13 +109,13 @@ struct sock *tcp_alloc_sock()
     memset(tsk, 0, sizeof(struct tcp_sock));
     tsk->sk.state = TCP_CLOSE;
     tsk->sackok = 1;
-    
+
     tsk->rmss = 1460;
     // Default to 536 as per spec
     tsk->smss = 536;
 
     skb_queue_init(&tsk->ofo_queue);
-    
+
     return (struct sock *)tsk;
 }
 
@@ -162,7 +162,7 @@ int tcp_v4_connect(struct sock *sk, const struct sockaddr *addr, int addrlen, in
     sk->sport = generate_port();
     sk->daddr = ntohl(daddr);
     /* TODO: Do not hardcode lvl-ip local interface */
-    sk->saddr = parse_ipv4_string("10.0.0.4"); 
+    sk->saddr = parse_ipv4_string("10.0.0.4");
 
     return tcp_connect(sk);
 }
@@ -188,9 +188,9 @@ int tcp_write(struct sock *sk, const void *buf, int len)
         goto out;
     }
 
-    return tcp_send(tsk, buf, len);    
+    return tcp_send(tsk, buf, len);
 
-out: 
+out:
     return ret;
 }
 
@@ -214,7 +214,7 @@ int tcp_read(struct sock *sk, void *buf, int len)
     case TCP_FIN_WAIT_2:
         /* If insufficient incoming segments are queued to satisfy the
            request, queue the request. */
-        
+
         break;
     case TCP_CLOSE_WAIT:
         /* If no text is awaiting delivery, the RECEIVE will get a
@@ -236,9 +236,9 @@ int tcp_read(struct sock *sk, void *buf, int len)
         goto out;
     }
 
-    return tcp_receive(tsk, buf, len);    
+    return tcp_receive(tsk, buf, len);
 
-out: 
+out:
     return ret;
 }
 
@@ -395,7 +395,7 @@ static void *tcp_user_timeout(void *arg)
 
     tcp_abort(sk);
     socket_release(sk->sock);
-    
+
     return NULL;
 }
 
@@ -468,18 +468,18 @@ int tcp_calculate_sacks(struct tcp_sock *tsk)
             sb->left = next->seq;
             tsk->sacklen++;
         }
-        
+
         if (sb->right == 0) sb->right = next->end_seq;
         else if (sb->right == next->seq) sb->right = next->end_seq;
         else {
             if (tsk->sacklen >= tsk->sacks_allowed) break;
-            
+
             sb = &tsk->sacks[tsk->sacklen];
             sb->left = next->seq;
             sb->right = next->end_seq;
             tsk->sacklen++;
         }
     }
-    
+
     return 0;
 }

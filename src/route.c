@@ -53,7 +53,7 @@ struct rtentry *route_lookup(uint32_t daddr)
         if ((daddr & rt->netmask) == (rt->dst & rt->netmask)) break;
         // If no matches, we default to to default gw (last item)
     }
-    
+
     return rt;
 }
 
@@ -61,7 +61,7 @@ void free_routes()
 {
     struct list_head *item, *tmp;
     struct rtentry *rt;
-    
+
     list_for_each_safe(item, tmp, &routes) {
         rt = list_entry(item, struct rtentry, list);
         list_del(item);

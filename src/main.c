@@ -60,7 +60,7 @@ static void *stop_stack_handler(void *arg)
 static void init_signals()
 {
     int err;
-    
+
     sigemptyset(&mask);
     sigaddset(&mask, SIGINT);
     sigaddset(&mask, SIGQUIT);
@@ -123,11 +123,11 @@ void init_security()
 int main(int argc, char** argv)
 {
     parse_cli(argc, argv);
-    
+
     init_signals();
     init_stack();
     init_security();
-    
+
     run_threads();
     wait_for_threads();
 

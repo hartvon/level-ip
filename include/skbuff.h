@@ -75,14 +75,14 @@ static inline int skb_queue_empty(const struct sk_buff_head *list)
 static inline struct sk_buff *skb_peek(struct sk_buff_head *list)
 {
     if (skb_queue_empty(list)) return NULL;
-        
+
     return list_first_entry(&list->head, struct sk_buff, list);
 }
 
 static inline void skb_queue_free(struct sk_buff_head *list)
 {
     struct sk_buff *skb = NULL;
-    
+
     while ((skb = skb_peek(list)) != NULL) {
         skb_dequeue(list);
         skb->refcnt--;

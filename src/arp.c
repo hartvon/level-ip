@@ -16,7 +16,7 @@ static struct sk_buff *arp_alloc_skb()
     struct sk_buff *skb = alloc_skb(ETH_HDR_LEN + ARP_HDR_LEN + ARP_DATA_LEN);
     skb_reserve(skb, ETH_HDR_LEN + ARP_HDR_LEN + ARP_DATA_LEN);
     skb->protocol = htons(ETH_P_ARP);
-    
+
     return skb;
 }
 
@@ -56,13 +56,13 @@ static int update_arp_translation_table(struct arp_hdr *hdr, struct arp_ipv4 *da
         if (entry->hwtype == hdr->hwtype && entry->sip == data->sip) {
             memcpy(entry->smac, data->smac, 6);
             pthread_mutex_unlock(&lock);
-            
+
             return 1;
         }
     }
 
     pthread_mutex_unlock(&lock);
-    
+
     return 0;
 }
 
@@ -100,7 +100,7 @@ void arp_rcv(struct sk_buff *skb)
     arpdata->sip = ntohl(arpdata->sip);
     arpdata->dip = ntohl(arpdata->dip);
     arpdata_dbg("receive", arpdata);
-    
+
     merge = update_arp_translation_table(arphdr, arpdata);
 
     if (!(netdev = netdev_get(arpdata->dip))) {
@@ -137,7 +137,7 @@ int arp_request(uint32_t sip, uint32_t dip, struct netdev *netdev)
     skb = arp_alloc_skb();
 
     if (!skb) return -1;
-    
+
     skb->dev = netdev;
 
     payload = (struct arp_ipv4 *) skb_push(skb, ARP_DATA_LEN);
@@ -147,12 +147,12 @@ int arp_request(uint32_t sip, uint32_t dip, struct netdev *netdev)
 
     memcpy(payload->dmac, broadcast_hw, netdev->addr_len);
     payload->dip = dip;
-    
+
     arp = (struct arp_hdr *) skb_push(skb, ARP_HDR_LEN);
 
     arp_dbg("req", arp);
     arp->opcode = htons(ARP_REQUEST);
-    arp->hwtype = htons(ARP_ETHERNET); 
+    arp->hwtype = htons(ARP_ETHERNET);
     arp->protype = htons(ETH_P_IP);
     arp->hwsize = netdev->addr_len;
     arp->prosize = 4;
@@ -160,13 +160,13 @@ int arp_request(uint32_t sip, uint32_t dip, struct netdev *netdev)
     arpdata_dbg("req", payload);
     payload->sip = htonl(payload->sip);
     payload->dip = htonl(payload->dip);
-    
+
     rc = netdev_transmit(skb, broadcast_hw, ETH_P_ARP);
     free_skb(skb);
     return rc;
 }
 
-void arp_reply(struct sk_buff *skb, struct netdev *netdev) 
+void arp_reply(struct sk_buff *skb, struct netdev *netdev)
 {
     struct arp_hdr *arphdr;
     struct arp_ipv4 *arpdata;
@@ -209,12 +209,12 @@ unsigned char* arp_get_hwaddr(uint32_t sip)
 {
     struct list_head *item;
     struct arp_cache_entry *entry;
-    
+
     pthread_mutex_lock(&lock);
     list_for_each(item, &arp_cache) {
         entry = list_entry(item, struct arp_cache_entry, list);
 
-        if (entry->state == ARP_RESOLVED && 
+        if (entry->state == ARP_RESOLVED &&
             entry->sip == sip) {
             arpcache_dbg("entry", entry);
 

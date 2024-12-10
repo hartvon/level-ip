@@ -50,7 +50,7 @@ static inline struct lvlip_sock *lvlip_get_sock(int fd) {
 
     list_for_each(item, &lvlip_socks) {
         sock = list_entry(item, struct lvlip_sock, list);
-        
+
         if (sock->fd == fd) return sock;
     };
 
@@ -123,7 +123,7 @@ static int transmit_lvlip(int lvlfd, struct ipc_msg *msg, int msglen)
     if (_read(lvlfd, buf, RCBUF_LEN) == -1) {
         perror("Could not read IPC response");
     }
-    
+
     struct ipc_msg *response = (struct ipc_msg *) buf;
 
     if (response->type != msg->type || response->pid != msg->pid) {
@@ -147,14 +147,14 @@ int socket(int domain, int type, int protocol)
     }
 
     struct lvlip_sock *sock;
-    
+
     int lvlfd = init_socket("/tmp/lvlip.socket");
 
     sock = lvlip_alloc();
     sock->lvlfd = lvlfd;
     list_add_tail(&sock->list, &lvlip_socks);
     lvlip_socks_count++;
-    
+
     int pid = getpid();
     int msglen = sizeof(struct ipc_msg) + sizeof(struct ipc_socket);
 
@@ -167,7 +167,7 @@ int socket(int domain, int type, int protocol)
         .type = type,
         .protocol = protocol
     };
-    
+
     memcpy(msg->data, &usersock, sizeof(struct ipc_socket));
 
     int sockfd = transmit_lvlip(sock->lvlfd, msg, msglen);
@@ -181,7 +181,7 @@ int socket(int domain, int type, int protocol)
     sock->fd = sockfd;
 
     lvl_sock_dbg("Socket called", sock);
-    
+
     return sockfd;
 }
 
@@ -195,7 +195,7 @@ int close(int fd)
     }
 
     lvl_sock_dbg("Close called", sock);
-    
+
     int pid = getpid();
     int msglen = sizeof(struct ipc_msg) + sizeof(struct ipc_close);
     int rc = 0;
@@ -223,10 +223,10 @@ int connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen)
     }
 
     lvl_sock_dbg("Connect called", sock);
-    
+
     int msglen = sizeof(struct ipc_msg) + sizeof(struct ipc_connect);
     int pid = getpid();
-    
+
     struct ipc_msg *msg = alloca(msglen);
     msg->type = IPC_CONNECT;
     msg->pid = pid;
@@ -308,7 +308,7 @@ ssize_t read(int sockfd, void *buf, size_t len)
     if (_read(sock->lvlfd, rbuf, rlen) == -1) {
         perror("Could not read IPC read response");
     }
-    
+
     struct ipc_msg *response = (struct ipc_msg *) rbuf;
 
     if (response->type != IPC_READ || response->pid != pid) {
@@ -332,7 +332,7 @@ ssize_t read(int sockfd, void *buf, size_t len)
 
     memset(buf, 0, len);
     memcpy(buf, data->buf, data->len);
-        
+
     return data->len;
 }
 
@@ -388,7 +388,7 @@ int poll(struct pollfd *fds, nfds_t nfds, int timeout)
 
     int blocking = 0;
     if (kernel_nfds > 0 && lvlip_nfds > 0 && timeout == -1) {
-        /* Cannot sleep indefinitely when we demux poll 
+        /* Cannot sleep indefinitely when we demux poll
            with both kernel and lvlip fds */
         timeout = 100;
         blocking = 1;
@@ -402,7 +402,7 @@ int poll(struct pollfd *fds, nfds_t nfds, int timeout)
             for (int i = 0; i < kernel_nfds; i++) {
                 lvl_dbg("Kernel nfd %d events %d timeout %d", kernel_fds[i]->fd, kernel_fds[i]->events, timeout);
             }
-            
+
             events = _poll(*kernel_fds, kernel_nfds, timeout);
 
             if (events == -1) {
@@ -415,7 +415,7 @@ int poll(struct pollfd *fds, nfds_t nfds, int timeout)
         if (lvlip_nfds < 1) {
             return events;
         }
-    
+
         int pid = getpid();
         int pollfd_size = sizeof(struct ipc_pollfd);
         int msglen = sizeof(struct ipc_msg) + sizeof(struct ipc_poll) + pollfd_size * lvlip_nfds;
@@ -452,7 +452,7 @@ int poll(struct pollfd *fds, nfds_t nfds, int timeout)
             errno = EAGAIN;
             return -1;
         }
-    
+
         struct ipc_msg *response = (struct ipc_msg *) rbuf;
 
         if (response->type != IPC_POLL || response->pid != pid) {
@@ -478,14 +478,14 @@ int poll(struct pollfd *fds, nfds_t nfds, int timeout)
         }
 
         int result = events + error->rc;
-    
+
         if (result > 0 || !blocking) {
             for (int i = 0; i < nfds; i++) {
                 lvl_dbg("Returning counts %d nfd %d with revents %d events %d timeout %d", result, i, fds[i].revents, fds[i].events, timeout);
             }
- 
+
             return result;
-        } 
+        }
     }
 
     print_err("Poll returning with -1\n");
@@ -523,7 +523,7 @@ int setsockopt(int fd, int level, int optname,
     lvl_sock_dbg("Setsockopt called", sock);
 
     /* WARN: Setsockopt not supported yet */
-    
+
     return 0;
 }
 
@@ -535,7 +535,7 @@ int getsockopt(int fd, int level, int optname,
 
     lvl_sock_dbg("Getsockopt called: level %d optname %d optval %d socklen %d",
                  sock, level, optname, *(int *)optval, *(int *)optlen);
-    
+
     int pid = getpid();
     int msglen = sizeof(struct ipc_msg) + sizeof(struct ipc_sockopt) + *optlen;
 
@@ -566,7 +566,7 @@ int getsockopt(int fd, int level, int optname,
     if (_read(sock->lvlfd, rbuf, rlen) == -1) {
         perror("Could not read IPC getsockopt response");
     }
-    
+
     struct ipc_msg *response = (struct ipc_msg *) rbuf;
 
     if (response->type != IPC_GETSOCKOPT || response->pid != pid) {
@@ -629,7 +629,7 @@ int getpeername(int socket, struct sockaddr *restrict address,
     if (_read(sock->lvlfd, rbuf, rlen) == -1) {
         perror("Could not read IPC getpeername response");
     }
-    
+
     struct ipc_msg *response = (struct ipc_msg *) rbuf;
 
     if (response->type != IPC_GETPEERNAME || response->pid != pid) {
@@ -656,7 +656,7 @@ int getpeername(int socket, struct sockaddr *restrict address,
 
     *address_len = nameres->address_len;
     memcpy(address, nameres->sa_data, nameres->address_len);
-    
+
     return 0;
 }
 
@@ -691,7 +691,7 @@ int getsockname(int socket, struct sockaddr *restrict address,
     if (_read(sock->lvlfd, rbuf, rlen) == -1) {
         perror("Could not read IPC getsockname response");
     }
-    
+
     struct ipc_msg *response = (struct ipc_msg *) rbuf;
 
     if (response->type != IPC_GETSOCKNAME || response->pid != pid) {
@@ -750,7 +750,7 @@ int fcntl(int fildes, int cmd, ...)
     struct ipc_fcntl *fc = (struct ipc_fcntl *)msg->data;
     fc->sockfd = fildes;
     fc->cmd = cmd;
-    
+
     switch (cmd) {
     case F_GETFL:
         lvl_sock_dbg("Fcntl GETFL", sock);
@@ -774,7 +774,7 @@ int fcntl(int fildes, int cmd, ...)
         errno = EINVAL;
         break;
     }
-    
+
     return rc;
 }
 

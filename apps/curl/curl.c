@@ -30,7 +30,7 @@ int get_address(char *host, char *port, struct sockaddr *addr)
         freeaddrinfo(result);
         return 0;
     }
-    
+
     return 1;
 }
 

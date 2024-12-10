@@ -54,17 +54,17 @@ static void timers_tick()
         print_err("Timer tick lock not acquired: %s\n", strerror(rc));
         return;
     };
-    
+
     list_for_each_safe(item, tmp, &timers) {
         if (!item) continue;
-        
+
         t = list_entry(item, struct timer, list);
 
         if ((rc = pthread_mutex_trylock(&t->lock)) != 0) {
             if (rc != EBUSY) {
                 print_err("Timer free mutex lock: %s\n", strerror(rc));
             }
-            
+
             continue;
         }
 
@@ -100,7 +100,7 @@ void timer_oneshot(uint32_t expire, void *(*handler)(void *), void *arg)
     if (t->expires < tick) {
         print_err("ERR: Timer expiry integer wrap around\n");
     }
-     
+
     t->handler = handler;
     t->arg = arg;
 
@@ -122,14 +122,14 @@ struct timer *timer_add(uint32_t expire, void *(*handler)(void *), void *arg)
     if (t->expires < tick) {
         print_err("ERR: Timer expiry integer wrap around\n");
     }
-     
+
     t->handler = handler;
     t->arg = arg;
 
     pthread_mutex_lock(&lock);
     list_add_tail(&t->list, &timers);
     pthread_mutex_unlock(&lock);
-    
+
     return t;
 }
 
@@ -138,21 +138,21 @@ void timer_release(struct timer *t)
     int rc = 0;
 
     if (!t) return;
-    
+
     if ((rc = pthread_mutex_lock(&t->lock)) != 0) {
         print_err("Timer release lock: %s\n", strerror(rc));
         return;
     };
 
     t->refcnt--;
-    
+
     pthread_mutex_unlock(&t->lock);
 }
 
 void timer_cancel(struct timer *t)
 {
     int rc = 0;
-    
+
     if (!t) return;
 
     if ((rc = pthread_mutex_lock(&t->lock)) != 0) {
@@ -162,7 +162,7 @@ void timer_cancel(struct timer *t)
 
     t->refcnt--;
     t->cancelled = 1;
-        
+
     pthread_mutex_unlock(&t->lock);
 }
 
@@ -181,7 +181,7 @@ void *timers_start()
         if (tick % 5000 == 0) {
             socket_debug();
             timer_debug();
-        } 
+        }
     }
 }
 

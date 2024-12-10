@@ -11,7 +11,7 @@ static int tcp_parse_opts(struct tcp_sock *tsk, struct tcphdr *th)
     struct tcp_opt_mss *opt_mss = NULL;
     uint8_t sack_seen = 0;
     uint8_t tsopt_seen = 0;
-    
+
     while (optlen > 0 && optlen < 20) {
         switch (*ptr) {
         case TCP_OPT_MSS:
@@ -62,13 +62,13 @@ static int tcp_parse_opts(struct tcp_sock *tsk, struct tcphdr *th)
 /*
  * Acks all segments from retransmissionn queue that are "older"
  * than current unacknowledged sequence
- */ 
+ */
 static int tcp_clean_rto_queue(struct sock *sk, uint32_t una)
 {
     struct tcp_sock *tsk = tcp_sk(sk);
     struct sk_buff *skb;
     int rc = 0;
-    
+
     while ((skb = skb_peek(&sk->write_queue)) != NULL) {
         if (skb->seq > 0 && skb->end_seq <= una) {
             /* skb fully acknowledged */
@@ -151,11 +151,11 @@ static int tcp_synsent(struct tcp_sock *tsk, struct sk_buff *skb, struct tcphdr 
     struct sock *sk = &tsk->sk;
 
     tcpsock_dbg("state is synsent", sk);
-    
+
     if (th->ack) {
         if (th->ack_seq <= tcb->iss || th->ack_seq > tcb->snd_nxt) {
             tcpsock_dbg("ACK is unacceptable", sk);
-            
+
             if (th->rst) goto discard;
             goto reset_and_discard;
         }
@@ -167,7 +167,7 @@ static int tcp_synsent(struct tcp_sock *tsk, struct sk_buff *skb, struct tcphdr 
     }
 
     /* ACK is acceptable */
-    
+
     if (th->rst) {
         tcp_reset(&tsk->sk);
         goto discard;
@@ -203,7 +203,7 @@ static int tcp_synsent(struct tcp_sock *tsk, struct sk_buff *skb, struct tcphdr 
         tcb->snd_una = tcb->iss;
         tcp_send_synack(&tsk->sk);
     }
-    
+
 discard:
     tcp_drop(sk, skb);
     return 0;
@@ -245,12 +245,12 @@ static int tcp_closed(struct tcp_sock *tsk, struct sk_buff *skb, struct tcphdr *
     }
 
     if (th->ack) {
- 
+
     } else {
-        
-    
+
+
     }
-    
+
     rc = tcp_send_reset(tsk);
     free_skb(skb);
 
@@ -260,7 +260,7 @@ out:
 
 /*
  * Follows RFC793 "Segment Arrives" section closely
- */ 
+ */
 int tcp_input_state(struct sock *sk, struct tcphdr *th, struct sk_buff *skb)
 {
     struct tcp_sock *tsk = tcp_sk(sk);
@@ -289,7 +289,7 @@ int tcp_input_state(struct sock *sk, struct tcphdr *th, struct sk_buff *skb)
         }
         return_tcp_drop(sk, skb);
     }
-    
+
     /* second check the RST bit */
     if (th->rst) {
         free_skb(skb);
@@ -297,7 +297,7 @@ int tcp_input_state(struct sock *sk, struct tcphdr *th, struct sk_buff *skb)
         tsk->sk.ops->recv_notify(&tsk->sk);
         return 0;
     }
-    
+
     /* third check security and precedence */
     // Not implemented
 
@@ -307,7 +307,7 @@ int tcp_input_state(struct sock *sk, struct tcphdr *th, struct sk_buff *skb)
         tcp_send_challenge_ack(sk, skb);
         return_tcp_drop(sk, skb);
     }
-    
+
     /* fifth check the ACK field */
     if (!th->ack) {
         return_tcp_drop(sk, skb);
@@ -370,7 +370,7 @@ int tcp_input_state(struct sock *sk, struct tcphdr *th, struct sk_buff *skb)
             tcp_set_state(sk, TCP_TIME_WAIT);
             break;
         case TCP_LAST_ACK:
-            /* The only thing that can arrive in this state is an acknowledgment of our FIN.  
+            /* The only thing that can arrive in this state is an acknowledgment of our FIN.
              * If our FIN is now acknowledged, delete the TCB, enter the CLOSED state, and return. */
             free_skb(skb);
             return tcp_done(sk);
@@ -387,7 +387,7 @@ int tcp_input_state(struct sock *sk, struct tcphdr *th, struct sk_buff *skb)
             break;
         }
     }
-    
+
     /* sixth, check the URG bit */
     if (th->urg) {
 
@@ -403,7 +403,7 @@ int tcp_input_state(struct sock *sk, struct tcphdr *th, struct sk_buff *skb)
         if (th->psh || skb->dlen > 0) {
             tcp_data_queue(tsk, th, skb);
         }
-                
+
         break;
     case TCP_CLOSE_WAIT:
     case TCP_CLOSING:
@@ -429,7 +429,7 @@ int tcp_input_state(struct sock *sk, struct tcphdr *th, struct sk_buff *skb)
         tcb->rcv_nxt += 1;
         tsk->flags |= TCP_FIN;
         sk->poll_events |= (POLLIN | POLLPRI | POLLRDNORM | POLLRDBAND);
-        
+
         tcp_send_ack(sk);
         tsk->sk.ops->recv_notify(&tsk->sk);
 
@@ -477,7 +477,7 @@ int tcp_input_state(struct sock *sk, struct tcphdr *th, struct sk_buff *skb)
             int pending = min(skb_queue_len(&sk->write_queue), 3);
             /* RFC1122:  A TCP SHOULD implement a delayed ACK, but an ACK should not
              * be excessively delayed; in particular, the delay MUST be less than
-             * 0.5 seconds, and in a stream of full-sized segments there SHOULD 
+             * 0.5 seconds, and in a stream of full-sized segments there SHOULD
              * be an ACK for at least every second segment. */
             if (tsk->inflight == 0 && pending > 0) {
                 tcp_send_next(sk, pending);
@@ -526,8 +526,8 @@ int tcp_receive(struct tcp_sock *tsk, void *buf, int len)
         if (sock->flags & O_NONBLOCK) {
             if (rlen == 0) {
                 rlen = -EAGAIN;
-            } 
-            
+            }
+
             break;
         } else {
             pthread_mutex_lock(&tsk->sk.recv_wait.lock);
@@ -539,6 +539,6 @@ int tcp_receive(struct tcp_sock *tsk, void *buf, int len)
     }
 
     if (rlen >= 0) tcp_rearm_user_timeout(sk);
-    
+
     return rlen;
 }
